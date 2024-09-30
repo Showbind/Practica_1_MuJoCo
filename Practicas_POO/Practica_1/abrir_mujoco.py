@@ -21,14 +21,11 @@ def open_window(): # Iniciar OpenGL
     # Establecer el contexto de OpenGL
     glfw.make_context_current(window)
     glfw.swap_interval(1)  # V-Sync (1) = On
-def mouse():
-    glfw.set_cursor_pos_callback(window)
-   
+
 def main():
     open_window()
     while glfw.window_should_close(window) == False:
         #Render here
-        mouse()
         glfw.swap_buffers(window)
         glfw.poll_events()
 
