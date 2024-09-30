@@ -63,7 +63,7 @@ def init_mujoco():
             </body>
         </worldbody>
         </mujoco>
-        """
+    """
     model = mj.MjModel.from_xml_string(chaotic_pendulum)
     data = mj.MjData(model)
     cam = mj.MjvCamera()
@@ -91,7 +91,7 @@ def keyboard(self, window, key, scancode, act, mods):
         mj.mj_forward(self.model, self.data)
     
     # Activa la interacción con la tecla A o a
-    if act == glfw.PRESS and (key == glfw.KEY_A or key == glfw.KEY_A):
+    if act == glfw.PRESS and (key == glfw.KEY_a or key == glfw.KEY_A):
         self.interact_with_object()
 
 
