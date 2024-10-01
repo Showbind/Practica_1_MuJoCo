@@ -1,3 +1,4 @@
+
 import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
