@@ -1,3 +1,4 @@
 mujoco
 .venv
-cubo.xml
+cubo.xml 
+editar_xml_mujoco.py
