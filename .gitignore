@@ -1,6 +1,4 @@
 mujoco
 .venv
-cubo.xml 
-editar_xml_mujoco.py
-sim.py
-test.py
+
+pruebas
