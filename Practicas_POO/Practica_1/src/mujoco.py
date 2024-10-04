@@ -2,12 +2,11 @@ import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
 
-
 class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
-    def __init__(self): 
+    def __init__(self,initial_width,initial_heigth,path): 
         # Resolucion inicial del renderizado
-        self.rendering_width = 960
-        self.rendering_heigth = 540
+        self.rendering_width = initial_width
+        self.rendering_heigth = initial_heigth
 
         #Estado de los botones
         self.mouse_button_left_pressed = False
@@ -19,7 +18,7 @@ class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
             raise("Error al iniciar glfw")
         
         # Crear y manejar error ventana
-        self.window = glfw.create_window(960,540,"MuJoCo: Motor de Fisicas", None, None)
+        self.window = glfw.create_window(initial_width,initial_heigth,"MuJoCo: Motor de Fisicas", None, None)
 
         # Fijar ASPECT RATIO (ej: 16:9) 
             #glfw.set_window_aspect_ratio(window,16,9)
@@ -40,7 +39,7 @@ class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.set_window_size_callback(self.window, self.window_size_callback)
 
         # Inicializar variables de MuJoCo
-        self.model = mj.MjModel.from_xml_path("Practicas_POO\Practica_1\cubo.xml") #Cargar Modelo 
+        self.model = mj.MjModel.from_xml_path(path) #Cargar Modelo 
         self.data = mj.MjData(self.model) # Establecer data para cada modelo
         self.camera = mj.MjvCamera() # Establecer camera
         self.opt = mj.MjvOption() # Para las opciones de visualizacion
@@ -68,7 +67,7 @@ class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else:
             self.mouse_button_left_pressed = False
 
-    def execute(self):
+    def run(self):
             
         while glfw.window_should_close(self.window) == False:
             #Render here
@@ -91,7 +90,7 @@ class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
 def main():
     simulador = CreateMujocoWindow()
-    simulador.execute()
+    simulador.run()
 
 if __name__ == "__main__":
     main()
