@@ -1,4 +1,5 @@
 mujoco
 .venv
-
 pruebas
+__pycache__
+editar_xml_mujoco.py
