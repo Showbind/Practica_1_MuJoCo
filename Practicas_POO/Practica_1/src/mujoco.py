@@ -2,7 +2,7 @@ import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
 
-class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
+class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width,initial_heigth,path): 
         # Resolucion inicial del renderizado
         self.rendering_width = initial_width
@@ -89,7 +89,7 @@ class CreateMujocoWindow: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.terminate()
 
 def main():
-    simulador = CreateMujocoWindow()
+    simulador = openMujoco()
     simulador.run()
 
 if __name__ == "__main__":
