@@ -1,6 +1,7 @@
 import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
+import glfw
 
 class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width,initial_heigth,path): 
@@ -67,7 +68,7 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else:
             self.mouse_button_left_pressed = False
 
-    def run(self):
+    def run(self): # Ejecuta el programa después de abri la ventana con
             
         while glfw.window_should_close(self.window) == False:
             #Render here
@@ -79,17 +80,19 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) # Accion del boton aqui
             
             # Update de la escena 
-            mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)        
+            mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)  
+
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
+
             # Intercambiar buffers (Velocidad establecida por V-Sync) 
             glfw.swap_buffers(self.window)
             glfw.poll_events()
-
+            
         glfw.terminate()
 
 def main():
-    simulador = openMujoco()
+    simulador = openMujoco(960,540, "Practicas_POO\Practica_1\src\models\cubo.xml")
     simulador.run()
 
 if __name__ == "__main__":
