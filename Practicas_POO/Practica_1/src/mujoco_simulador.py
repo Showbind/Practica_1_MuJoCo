@@ -68,7 +68,7 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else:
             self.mouse_button_left_pressed = False
 
-    def run(self): # Ejecuta el programa después de abri la ventana con
+    def run(self,path): # Ejecuta MuJoCo después de abrir la ventana
             
         while glfw.window_should_close(self.window) == False:
             #Render here
@@ -77,8 +77,12 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
             # Si boton izq del mouse presionado -> Establecer accion deseada
             if self.mouse_button_left_pressed == True:
-                print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) # Accion del boton aqui
-            
+                # Accion del boton aqui
+                print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
+
+                # Vuelve a cargar el objeto (Para actualizar el objeto desde la UI)
+                self.model = mj.MjModel.from_xml_path(path) 
+
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)  
 
