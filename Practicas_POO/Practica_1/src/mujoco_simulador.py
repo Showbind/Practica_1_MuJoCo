@@ -53,6 +53,8 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         mj.mjv_defaultCamera(self.camera)
         mj.mjv_defaultOption(self.opt)
 
+        # Editar xml
+
     def window_size_callback(self,window,width,heigth):
         global rendering_width, rendering_heigth
 
@@ -68,7 +70,14 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else:
             self.mouse_button_left_pressed = False
 
-    def run(self,path): # Ejecuta MuJoCo después de abrir la ventana
+    def edit_objects(self,body_name, body_size, body_pos = 0, body_mass = 0):
+        # Obtener id del objeto
+        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, body_name)
+        self.model.geom_size[object_id] = body_size
+        print("abcd")
+
+
+    def run(self): # Ejecuta MuJoCo después de abrir la ventana
             
         while glfw.window_should_close(self.window) == False:
             #Render here
@@ -81,11 +90,12 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
 
                 # Vuelve a cargar el objeto (Para actualizar el objeto desde la UI)
-                self.model = mj.MjModel.from_xml_path(path) 
+                    # self.model = mj.MjModel.from_xml_path(path) 
 
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)  
 
+            #self.edit_objects("red_sphere", 0.05)
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 
@@ -96,8 +106,10 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.terminate()
 
 def main():
-    simulador = openMujoco(960,540, "Practicas_POO\Practica_1\src\models\cubo.xml")
-    simulador.run()
+    simulador = openMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
+    #print(simulador.edit_objects(simulador.model, "red_sphere"))
+    simulador.run("Practicas_POO\Practica_1\src\models\esfera.xml")
+   
 
 if __name__ == "__main__":
     main()
