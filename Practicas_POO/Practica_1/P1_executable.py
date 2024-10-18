@@ -5,11 +5,11 @@ def main():
 
     # Ejecutar MuJoCo
     abrir_programa = openMujoco(960,540,path) 
-    
-    # Editar objetos
-    abrir_programa.edit_objects("red_sphere", 0.05)
-    # Ejecutar Programa
+    abrir_programa.edit_objects("red_sphere", 0.1)
     abrir_programa.run()
+    # Editar objetos
+    # Ejecutar Programa
     
+
 if __name__ == "__main__":
     main()

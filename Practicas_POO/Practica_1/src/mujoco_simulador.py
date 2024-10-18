@@ -8,7 +8,8 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Resolucion inicial del renderizado
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
-
+        self.size = 0.2
+        self.old_size = self.size
         #Estado de los botones
         self.mouse_button_left_pressed = False
 
@@ -74,13 +75,14 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Obtener id del objeto
         object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, body_name)
         self.model.geom_size[object_id] = body_size
-        print("abcd")
+        print("Se ha editado el modelo", body_size)
 
-
+    def update_object_size(self,new_size):
+        self.size = new_size
     def run(self): # Ejecuta MuJoCo después de abrir la ventana
             
         while glfw.window_should_close(self.window) == False:
-            #Render here
+            #Renderizado
             mj.mj_step(self.model, self.data)
             mj.mj_forward(self.model, self.data)
 
@@ -89,13 +91,12 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 # Accion del boton aqui
                 print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
 
-                # Vuelve a cargar el objeto (Para actualizar el objeto desde la UI)
-                    # self.model = mj.MjModel.from_xml_path(path) 
-
             # Update de la escena 
-            mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)  
+            mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
+            if self.size != self.old_size:  
+                self.edit_objects("red_sphere", self.size)
+                self.old_size = self.size
 
-            #self.edit_objects("red_sphere", 0.05)
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 
@@ -108,7 +109,7 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 def main():
     simulador = openMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
     #print(simulador.edit_objects(simulador.model, "red_sphere"))
-    simulador.run("Practicas_POO\Practica_1\src\models\esfera.xml")
+    simulador.run()
    
 
 if __name__ == "__main__":
