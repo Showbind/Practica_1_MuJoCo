@@ -3,13 +3,16 @@ from mujoco.glfw import glfw
 import numpy as np
 import glfw
 
-class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
+class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width,initial_heigth,xml_path): 
-        # Resolucion inicial del renderizado
+        # Resolucion Inicial renderizado
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
+        
+        # Tamaño objeto
         self.size = 0.2
         self.old_size = self.size
+       
         #Estado de los botones
         self.mouse_button_left_pressed = False
 
@@ -41,7 +44,7 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.set_window_size_callback(self.window, self.window_size_callback) # if window has been resized
 
     #--------------------------------------------------
-    #             INICIALIZACION DE MUJOCO
+    #          INICIALIZACION VARIABLES MUJOCO         
     #--------------------------------------------------
 
         # Inicializar variables de MuJoCo
@@ -59,31 +62,34 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         mj.mjv_defaultOption(self.opt)
 
 #--------------------------------------------------
-#                   CALLBACKS
+#                    CALLBACKS
 #--------------------------------------------------
-    def window_size_callback(self,window,width,heigth):
+    def window_size_callback(self,window,width,heigth): # Cambia el tamaño de la ventana
         global rendering_width, rendering_heigth
 
         self.rendering_width = width
         self.rendering_heigth = heigth
 
-        print("- Resolucion actual:", "(", width, ",", heigth, ")") 
+        print(f"- Resolucion actual: {width}, {heigth}") 
 
-    def mouse_button_callback(self,window, button, action, mods):
+    def mouse_button_callback(self,window, button, action, mods): # Booleano del click izq del mouse
         global mouse_button_left_pressed
         if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
             self.mouse_button_left_pressed = True
         else:
             self.mouse_button_left_pressed = False
 
-    def edit_objects(self,body_name, body_size, body_pos = 0, body_mass = 0):
-        # Obtener id del objeto
-        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, body_name)
-        self.model.geom_size[object_id] = body_size
+    def edit_object_callback(self,body_name, body_size, body_pos = 0, body_mass = 0): # Actualiza las propiedades del objeto
+        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, body_name)  # Obtener id del objeto
+        self.model.geom_size[object_id] = body_size # Asignar nuevo tamaño
+
         print("Se ha editado el modelo", body_size)
 
-    def update_object_size(self,new_size):
+    def update_object_properties(self,new_size):
         self.size = new_size
+#--------------------------------------------------
+#                    RUNNING
+#--------------------------------------------------
     def run(self): # Ejecuta MuJoCo después de abrir la ventana
             
         while glfw.window_should_close(self.window) == False:
@@ -99,10 +105,11 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
 
-            if self.size != self.old_size:  # Detecta y cambia el nuevo tamaño de la esfera
-               self.edit_objects("red_sphere", self.size)
+            # Detecta y cambia el nuevo tamaño de la esfera
+            if self.size != self.old_size:  
+               self.edit_object_callback("red_sphere", self.size)
                self.old_size = self.size
-                
+
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 
@@ -113,7 +120,7 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.terminate()
 
 def main():
-    simulador = openMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
+    simulador = OpenMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
     #print(simulador.edit_objects(simulador.model, "red_sphere"))
     simulador.run()
    
