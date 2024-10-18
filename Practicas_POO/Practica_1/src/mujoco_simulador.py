@@ -4,7 +4,7 @@ import numpy as np
 import glfw
 
 class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
-    def __init__(self,initial_width,initial_heigth,path): 
+    def __init__(self,initial_width,initial_heigth,xml_path): 
         # Resolucion inicial del renderizado
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
@@ -34,28 +34,33 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.make_context_current(self.window)
         glfw.swap_interval(1)  # V-Sync (1) = On
 
-        # Mouse callback (llama a mouse_button_callback)
-        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback) # boton izquierdo presionado
+    #--------------------------------------------------
+    #               LLAMADA A CALLBACKS
+    #--------------------------------------------------
+        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback) # if mouse_left_button_pressed
+        glfw.set_window_size_callback(self.window, self.window_size_callback) # if window has been resized
 
-        # Window resize callback (llama a window_size_callback)
-        glfw.set_window_size_callback(self.window, self.window_size_callback)
+    #--------------------------------------------------
+    #             INICIALIZACION DE MUJOCO
+    #--------------------------------------------------
 
         # Inicializar variables de MuJoCo
-        self.model = mj.MjModel.from_xml_path(path) #Cargar Modelo 
+        self.model = mj.MjModel.from_xml_path(xml_path) #Cargar Modelo 
         self.data = mj.MjData(self.model) # Establecer data para cada modelo
         self.camera = mj.MjvCamera() # Establecer camera
         self.opt = mj.MjvOption() # Para las opciones de visualizacion
 
-        # Establecer Escena y Contexto (Inicializacion)
-        self.scene = mj.MjvScene(self.model, maxgeom=10000) 
+        # Establecer Escena y Contexto 
+        self.scene = mj.MjvScene(self.model, maxgeom=10000) # Escena
         self.context = mj.MjrContext(self.model, mj.mjtFontScale.mjFONTSCALE_150.value) # Contexto para la GPU
     
         # Tipo de camera y opcion default
         mj.mjv_defaultCamera(self.camera)
         mj.mjv_defaultOption(self.opt)
 
-        # Editar xml
-
+#--------------------------------------------------
+#                   CALLBACKS
+#--------------------------------------------------
     def window_size_callback(self,window,width,heigth):
         global rendering_width, rendering_heigth
 
@@ -93,10 +98,11 @@ class openMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
-            if self.size != self.old_size:  
-                self.edit_objects("red_sphere", self.size)
-                self.old_size = self.size
 
+            if self.size != self.old_size:  # Detecta y cambia el nuevo tamaño de la esfera
+               self.edit_objects("red_sphere", self.size)
+               self.old_size = self.size
+                
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 

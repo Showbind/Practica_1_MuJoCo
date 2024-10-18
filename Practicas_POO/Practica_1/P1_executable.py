@@ -5,7 +5,7 @@ def main():
 
     # Ejecutar MuJoCo
     abrir_programa = openMujoco(960,540,path) 
-    abrir_programa.edit_objects("red_sphere", 0.1)
+    abrir_programa.edit_objects("red_sphere", 0.05)
     abrir_programa.run()
     # Editar objetos
     # Ejecutar Programa
