@@ -10,9 +10,12 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.rendering_heigth = initial_heigth
         
         # Tamaño objeto
-        self.size = 0.2
+        self.size = None
         self.old_size = self.size
-       
+
+        # Nombre del objeto
+        self.object_name = "red_sphere"
+
         #Estado de los botones
         self.mouse_button_left_pressed = False
 
@@ -46,7 +49,6 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     #--------------------------------------------------
     #          INICIALIZACION VARIABLES MUJOCO         
     #--------------------------------------------------
-
         # Inicializar variables de MuJoCo
         self.model = mj.MjModel.from_xml_path(xml_path) #Cargar Modelo 
         self.data = mj.MjData(self.model) # Establecer data para cada modelo
@@ -60,6 +62,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Tipo de camera y opcion default
         mj.mjv_defaultCamera(self.camera)
         mj.mjv_defaultOption(self.opt)
+        
 
 #--------------------------------------------------
 #                    CALLBACKS
@@ -79,14 +82,18 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else:
             self.mouse_button_left_pressed = False
 
-    def edit_object_callback(self,body_name, body_size, body_pos = 0, body_mass = 0): # Actualiza las propiedades del objeto
-        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, body_name)  # Obtener id del objeto
+    def edit_object_callback(self,body_size, body_pos = 0, body_mass = 0): # Actualiza las propiedades del objeto
+        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.object_name)  # Obtener id del objeto según el nombre
         self.model.geom_size[object_id] = body_size # Asignar nuevo tamaño
 
-        print("Se ha editado el modelo", body_size)
+        print(f"Se ha editado el modelo {body_size}")
 
-    def update_object_properties(self,new_size):
-        self.size = new_size
+    def update_object_properties(self,new_size, new_object_name): # Actualiza uno o varios atributos del objeto
+        if new_size != None:
+            self.size = new_size
+
+        self.object_name = new_object_name
+
 #--------------------------------------------------
 #                    RUNNING
 #--------------------------------------------------
@@ -107,7 +114,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
             # Detecta y cambia el nuevo tamaño de la esfera
             if self.size != self.old_size:  
-               self.edit_object_callback("red_sphere", self.size)
+               self.edit_object_callback(self.size)
                self.old_size = self.size
 
             # Render de la escena 
@@ -121,7 +128,6 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
 def main():
     simulador = OpenMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
-    #print(simulador.edit_objects(simulador.model, "red_sphere"))
     simulador.run()
    
 
