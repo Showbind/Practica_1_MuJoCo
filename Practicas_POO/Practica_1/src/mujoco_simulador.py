@@ -5,6 +5,7 @@ import glfw
 
 class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width,initial_heigth,xml_path): 
+
         # Resolucion Inicial renderizado
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
@@ -40,16 +41,17 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.make_context_current(self.window)
         glfw.swap_interval(1)  # V-Sync (1) = On
 
-    #--------------------------------------------------
-    #               LLAMADA A CALLBACKS
-    #--------------------------------------------------
-        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback) # if mouse_left_button_pressed
-        glfw.set_window_size_callback(self.window, self.window_size_callback) # if window has been resized
+        # LLAMADA A CALLBACKS
 
-    #--------------------------------------------------
-    #          INICIALIZACION VARIABLES MUJOCO         
-    #--------------------------------------------------
-        # Inicializar variables de MuJoCo
+        # if mouse_left_button_pressed
+        glfw.set_mouse_button_callback(self.window, self.mouse_button_callback) 
+
+        # if window has been resized
+        glfw.set_window_size_callback(self.window, self.window_size_callback) 
+
+        # INICIALIZACION VARIABLES MUJOCO    
+
+        # Establecer variables
         self.model = mj.MjModel.from_xml_path(xml_path) #Cargar Modelo 
         self.data = mj.MjData(self.model) # Establecer data para cada modelo
         self.camera = mj.MjvCamera() # Establecer camera
@@ -61,12 +63,10 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     
         # Tipo de camera y opcion default
         mj.mjv_defaultCamera(self.camera)
-        mj.mjv_defaultOption(self.opt)
-        
+        mj.mjv_defaultOption(self.opt) 
 
-#--------------------------------------------------
-#                    CALLBACKS
-#--------------------------------------------------
+    # CALLBACKS
+
     def window_size_callback(self,window,width,heigth): # Cambia el tamaño de la ventana
         global rendering_width, rendering_heigth
 
@@ -94,10 +94,10 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
         self.object_name = new_object_name
 
-#--------------------------------------------------
-#                    RUNNING
-#--------------------------------------------------
-    def run(self): # Ejecuta MuJoCo después de abrir la ventana
+    # RUNTIME
+
+    # Ejecuta MuJoCo después de abrir la ventana
+    def run(self): 
             
         while glfw.window_should_close(self.window) == False:
             #Renderizado
