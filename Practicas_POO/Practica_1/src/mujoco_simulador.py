@@ -9,7 +9,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Resolucion Inicial renderizado
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
-        
+        self.xml_path = xml_path
         # Tamaño objeto
         self.size = None
         self.old_size = self.size
@@ -108,7 +108,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
             if self.mouse_button_left_pressed == True:
                 # Accion del boton aqui
                 print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
-
+                self.model = mj.MjModel.from_xml_path(self.xml_path)
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
 
