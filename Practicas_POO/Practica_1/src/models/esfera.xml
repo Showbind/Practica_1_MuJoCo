@@ -9,7 +9,7 @@
   <worldbody>
 
     <light pos="0 0 1" mode="trackcom"/>
-    <geom name="ground" type="plane" pos="0 0 -.5" size="2 2 .1" material="grid" solimp=".95 .95 .001" solref=".0001 3" friction="0.8 0.8 0.8"/>
+    <geom name="ground" type="plane" pos="0 0 -.5" size="4 4 .1" material="grid" solimp=".95 .95 .001" solref=".0001 3" friction="0.8 0.8 0.8"/>
 
     <body> <!-- RAMPA  aqua -->
       <geom name="rampa_1" type="box" size="0.5 0.15 0.01" pos="-1 0.5 -0.3" rgba="0.79 2.1 1.7 0.8" euler = "0 15 0" solimp="3 .95 .001"  solref=".0001 3"  friction="0.8 0.8 0.8"/>
@@ -29,9 +29,7 @@
       <geom name="blue_sphere" type="sphere" size="0.3" pos="1 0.5 0.4" rgba="1 0 0 1" solimp=".95 .95 .001" solref=".0001 3" mass="1" friction="0.8 0.8 0.8"/>
     </body>
 
-    <camera name="fixed" pos="0 -.9 .3" xyaxes="1 0 0 0 1 2"/>
-    <camera name="track" pos="0 -.6 .3" xyaxes="1 0 0 0 1 2" mode="track"/>
-
+    <camera name="targetbody" pos="0 -5 0"/>
   </worldbody>
   <option gravity="0 0 -9.81" timestep="0.005" solver="PGS" iterations="10" tolerance="0.01" /> 
 </mujoco>
