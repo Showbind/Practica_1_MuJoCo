@@ -79,14 +79,19 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         if self.mouse_button_left_pressed == True:
                 # Accion del boton aqui
                 print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
-                self.model = mj.MjModel.from_xml_path(self.xml_path)
 
 # CALLBACKS
     def set_json_object_properties(self,json_dictionary:(dict)=None):
 
-        # IDs objetos
+        # IDs "left_sphere"
         left_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere")
+        left_sphere_joint_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere_joint")
+
+        # IDs "right_sphere"
         right_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_sphere")
+        left_sphere_joint_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_sphere_joint")
+        
+        # IDs rampas
         left_ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_ramp")
         right_ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_ramp")
 
@@ -94,21 +99,27 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.model.geom_size[left_sphere_id]=json_dictionary["left_sphere"]["size"]
         self.model.geom_rgba[left_sphere_id]=json_dictionary["left_sphere"]["rgba"]
         self.model.body_mass[left_sphere_id]=json_dictionary["left_sphere"]["mass"]
+        left_joint_pos_index = self.model.jnt_qposadr[left_sphere_joint_id] # Devuelve el indice del primer eje de coordenadas(x,y,z) del joint 
+        self.data.qpos[left_joint_pos_index:left_joint_pos_index+3] = json_dictionary["left_sphere"]["position"] # Cambia los valores de x,y,z del joint 
 
         # Atributos "right_sphere"
         self.model.geom_size[right_sphere_id]=json_dictionary["right_sphere"]["size"]
         self.model.geom_rgba[right_sphere_id]=json_dictionary["right_sphere"]["rgba"]
         self.model.body_mass[right_sphere_id]=json_dictionary["right_sphere"]["mass"]
+        right_joint_pos_index = self.model.jnt_qposadr[left_sphere_joint_id] # Devuelve el indice del primer eje de coordenadas(x,y,z) del joint
+        self.data.qpos[right_joint_pos_index:right_joint_pos_index+3] = json_dictionary["right_sphere"]["position"] # Cambia los valores de x,y,z del joint 
 
         # Atributos "left_ramp"
-        self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        #self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
         self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
+        a = self.model.body_geomadr[left_ramp_id]
+        self.data.qpos[a] = 15
 
         # Atributos "right_ramp"
         self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[right_ramp_id]=json_dictionary["right_ramp"]["length"]
-        #self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
+        self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
 
     def window_size_callback(self,window,width:int,heigth:int): # Cambia el tamaño de la ventana
         global rendering_width, rendering_heigth

@@ -2,12 +2,14 @@
     "left_sphere": {
         "size": 0.05, 
         "rgba": [1.5, 0.1, 0.5, 1], 
-        "mass": 0.1
+        "mass": 0.1,
+        "position":[0, 1,0 ]
     },
     "right_sphere": {
         "size": 0.05, 
         "rgba": [1, 0, 0, 1], 
-        "mass": 0.1
+        "mass": 0.1,
+        "position":[0.2, 0.1, 0.5]
     },
     "left_ramp": {
         "tilt": [-5, 0, -1, 0], 
