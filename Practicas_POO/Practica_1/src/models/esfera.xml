@@ -9,24 +9,24 @@
   <worldbody>
 
     <light pos="0 0 1" mode="trackcom"/>
-    <geom name="ground" type="plane" pos="0 0 -.5" size="4 4 .1" material="grid" solimp=".95 .95 .001" solref=".0001 3" friction="0.8 0.8 0.8"/>
+    <geom name="ground" type="plane" pos="0 0 -.5" size="4 4 .1" material="grid" solimp=".95 .95 .001" solref="0.01 1" friction="0.5 0.3"/>
 
-    <body> <!-- RAMPA  aqua -->
-      <geom name="rampa_1" type="box" size="0.5 0.15 0.01" pos="-1 0.5 -0.3" rgba="0.79 2.1 1.7 0.8" euler = "0 15 0" solimp="3 .95 .001"  solref=".0001 3"  friction="0.8 0.8 0.8"/>
+    <body> 
+      <geom name="left_ramp" type="box" size="0.5 0.15 0.01" pos="-1 0.5 -0.3" rgba="0.79 2.1 1.7 0.8" euler = "0 15 0" solimp="0.9 0.95 0.001"  solref="0.01 1"  friction="0.6 0.4"/>
     </body>
           
-    <body> <!-- RAMPA rosa -->
-      <geom name="rampa_2" type="box" size="0.5 0.15 0.01" pos="1 0.5 -0.3" rgba="1.5 0.1 0.5 1" euler = "0 -25 0" solimp=".95 .95 .001"  solref=".0001 3"  friction="0.8 0.8 0.8"/>
+    <body> 
+      <geom name="right_ramp" type="box" size="0.5 0.15 0.01" pos="1 0.5 -0.3" rgba="1.5 0.1 0.5 1" euler = "0 -25 0" solimp="0.9 0.95 0.001"  solref="0.01 1"  friction="0.6 0.4"/>
     </body>
 
-    <body> <!-- ESFERA ROJA -->
+    <body> 
       <freejoint/>
-      <geom name="red_sphere" type="sphere" size="0.3" pos="-1 0.5 0.4" rgba="1.5 0.1 0.5 1" solimp=".95 .95 .001" solref=".0001 3" mass="2.5" friction="0.8 0.8 0.8"/>
+      <geom name="left_sphere" type="sphere" size="0.3" pos="-1 0.5 0.4" rgba="1.5 0.1 0.5 1" solimp="0.9 0.95 0.001" solref="0.01 1" mass="2.5" friction="0.3 0.5"/>
     </body>
 
-    <body> <!-- ESFERA AZUL -->
+    <body> 
       <freejoint/>
-      <geom name="blue_sphere" type="sphere" size="0.3" pos="1 0.5 0.4" rgba="1 0 0 1" solimp=".95 .95 .001" solref=".0001 3" mass="1" friction="0.8 0.8 0.8"/>
+      <geom name="right_sphere" type="sphere" size="0.3" pos="1 0.5 0.4" rgba="1 0 0 1" solimp="0.9 0.95 0.001" solref="0.01 1" mass="1" friction="0.3 0.5"/>
     </body>
 
     <camera name="targetbody" pos="0 -5 0"/>

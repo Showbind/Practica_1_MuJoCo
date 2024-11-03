@@ -2,7 +2,6 @@ import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
 import glfw
-import json
 
 class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width:int,initial_heigth:int,xml_path): 
@@ -19,7 +18,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.old_size = self.size
 
         # Nombre del objeto
-        self.object_name = "red_sphere"
+        self.object_name = "left_sphere"
 
         #Estado de los botones
         self.mouse_button_left_pressed = False
@@ -70,7 +69,6 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         mj.mjv_defaultOption(self.opt) 
 
 # HIGH-ORDER FUNCTIONS
-
     # Detecta y cambia el nuevo tamaño de la esfera
     def if_sphere_size_changed(self): 
         if self.size != self.old_size:  
@@ -84,6 +82,33 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 self.model = mj.MjModel.from_xml_path(self.xml_path)
 
 # CALLBACKS
+    def set_json_object_properties(self,json_dictionary:(dict)=None):
+
+        # IDs objetos
+        left_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere")
+        right_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_sphere")
+        left_ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_ramp")
+        right_ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_ramp")
+
+        # Atributos "left_sphere"
+        self.model.geom_size[left_sphere_id]=json_dictionary["left_sphere"]["size"]
+        self.model.geom_rgba[left_sphere_id]=json_dictionary["left_sphere"]["rgba"]
+        self.model.body_mass[left_sphere_id]=json_dictionary["left_sphere"]["mass"]
+
+        # Atributos "right_sphere"
+        self.model.geom_size[right_sphere_id]=json_dictionary["right_sphere"]["size"]
+        self.model.geom_rgba[right_sphere_id]=json_dictionary["right_sphere"]["rgba"]
+        self.model.body_mass[right_sphere_id]=json_dictionary["right_sphere"]["mass"]
+
+        # Atributos "left_ramp"
+        self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
+        self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
+
+        # Atributos "right_ramp"
+        self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        self.model.geom_size[right_ramp_id]=json_dictionary["right_ramp"]["length"]
+        #self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
 
     def window_size_callback(self,window,width:int,heigth:int): # Cambia el tamaño de la ventana
         global rendering_width, rendering_heigth
