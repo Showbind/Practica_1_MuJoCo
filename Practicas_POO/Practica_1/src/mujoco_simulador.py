@@ -2,6 +2,8 @@ import mujoco as mj
 from mujoco.glfw import glfw
 import numpy as np
 import glfw
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self,initial_width:int,initial_heigth:int,xml_path): 
@@ -113,11 +115,16 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         #self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
         self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
-        a = self.model.body_geomadr[left_ramp_id]
-        self.data.qpos[a] = 15
+        
+        euler_angles = np.pi/4  # Ejemplo: rotación de 90 grados en Z
+        rotation = R.from_euler('y', euler_angles, degrees=False)
+        quat = rotation.as_quat()  # Convertimos a cuaternión
+        self.model.body_pos[left_ramp_id] = [-1, 0.5, -0.3] 
+        print(quat)
+        self.model.body_quat[left_ramp_id]=quat
 
         # Atributos "right_ramp"
-        self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        #self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[right_ramp_id]=json_dictionary["right_ramp"]["length"]
         self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
 

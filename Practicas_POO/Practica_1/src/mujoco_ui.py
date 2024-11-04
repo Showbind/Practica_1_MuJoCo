@@ -90,7 +90,6 @@ class Tkinter_UI(object):
     # Lee el archivo &
     def read_file(self):
         self.config_file = self.file.read()
-
         try:
             self.js = json.loads(self.config_file)
         except json.JSONDecodeError:
