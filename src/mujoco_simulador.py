@@ -184,7 +184,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         glfw.terminate()
 
 def main():
-    simulador = OpenMujoco(960,540, "Practicas_POO\Practica_1\src\models\esfera.xml")
+    simulador = OpenMujoco(960,540, "src\models\esfera.xml")
     simulador.run()
    
 
