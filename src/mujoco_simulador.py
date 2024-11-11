@@ -12,7 +12,11 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.rendering_width = initial_width
         self.rendering_heigth = initial_heigth
         self.xml_path = xml_path
-        
+
+        # Raton                                  
+        self.scroll_offset = 2 # Valor inicial distancia cámara
+        self.mouse_scroll_changed = False
+
     #PROPIEDADES ESFERA
 
         # Tamaño ESFERA
@@ -23,7 +27,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.object_name = "left_sphere"
 
         #Estado de los botones
-        self.mouse_button_left_pressed = False
+        self.mouse_button_right_pressed = False
 
         # Iniciar glfw (OpenGL API)
         try:
@@ -48,8 +52,12 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
     # LLAMADA A CALLBACKS
 
-        # if mouse_left_button_pressed
+        # Si mouse_right_button_pressed == True
         glfw.set_mouse_button_callback(self.window, self.mouse_button_callback) 
+        glfw.set_cursor_pos_callback(self.window, self.mouse_position_callback)
+
+        # Scroll mouse
+        glfw.set_scroll_callback(self.window,self.mouse_scroll_callback)
 
         # if window has been resized
         glfw.set_window_size_callback(self.window, self.window_size_callback) 
@@ -68,22 +76,35 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     
         # Tipo de camera y opcion default
         mj.mjv_defaultCamera(self.camera)
+        self.camera.distance = self.scroll_offset
         mj.mjv_defaultOption(self.opt) 
 
 # HIGH-ORDER FUNCTIONS
-    # Detecta y cambia el nuevo tamaño de la esfera
-    def if_sphere_size_changed(self): 
+    
+    def if_sphere_size_changed(self): # Detecta y cambia el nuevo tamaño de la esfera
         if self.size != self.old_size:  
                self.update_object_data_callback(body_size=self.size)
                self.old_size = self.size
     
-    def if_mouse_button_left_pressed(self):
-        if self.mouse_button_left_pressed == True:
-                # Accion del boton aqui
-                print("     - Boton izquierdo presionado:",self.mouse_button_left_pressed) 
+    def if_mouse_button_right_pressed(self):
+        if self.mouse_button_right_pressed == True:
+                # Accion del boton
+                print("     - Boton derecho presionado:",self.mouse_button_right_pressed)
+
+                self.camera.azimuth = -mouse_x/20
+                self.camera.elevation = mouse_y/20
+    
+                print(f"-Posicion raton  x: {mouse_x};   y: {mouse_y}")
+    
+    def if_mouse_scroll_moved(self): # Cambiar distancia camara
+        if self.mouse_scroll_changed == True:
+            self.camera.distance = self.scroll_offset
+            self.mouse_scroll_changed = False
+
+            print("Scroll Raton Valor:",self.scroll_offset)
 
 # CALLBACKS
-    def set_json_object_properties(self,json_dictionary:(dict)=None):
+    def set_json_object_properties(self,json_dictionary:(dict)=None): # Carga los valores del JSON en el simulador
 
         # IDs "left_sphere"
         left_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere")
@@ -120,33 +141,34 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         #rotation = R.from_euler('y', euler_angles, degrees=False)
         #quat = rotation.as_quat()  # Convertimos a cuaternión
         #self.model.body_pos[left_ramp_id] = [-1, 0.5, -0.3] 
-        angle = np.radians(-15)
-        axis = np.array([0, 0,1 ])  # Eje Z
-       
-        new_quaternion = R.from_rotvec(angle * axis).as_quat()
-        #self.model.body_quat[left_ramp_id] = [65,76,32,5]
-    
-        #self.model.body_quat[left_ramp_id]
-
-        # Atributos "right_ramp"
+        
         #self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[right_ramp_id]=json_dictionary["right_ramp"]["length"]
         self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
 
-    def window_size_callback(self,window,width:int,heigth:int): # Cambia el tamaño de la ventana
+    def window_size_callback(self,window,width:int,heigth:int): # Asigna nuevos valores del renderizado de la ventana
         global rendering_width, rendering_heigth
 
         self.rendering_width = width
         self.rendering_heigth = heigth
 
         print(f"- Resolucion actual: {width}, {heigth}") 
-  
+
+    def mouse_scroll_callback(self, window, xoffset: float, yoffset: float): # Asigna valor scroll raton
+        self.scroll_offset = self.scroll_offset-(yoffset/5)
+        self.mouse_scroll_changed = True
+
+    def mouse_position_callback(self, window, xpos:float, ypos:float): # Asigna valores posicion puntero del raton
+        global mouse_x, mouse_y
+        mouse_x = xpos
+        mouse_y = ypos
+
     def mouse_button_callback(self,window, button, action, mods): # Booleano del click izq del mouse
-        global mouse_button_left_pressed
-        if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
-            self.mouse_button_left_pressed = True
+        global mouse_button_right_pressed
+        if button == glfw.MOUSE_BUTTON_RIGHT and action == glfw.PRESS:
+            self.mouse_button_right_pressed = True
         else:
-            self.mouse_button_left_pressed = False
+            self.mouse_button_right_pressed = False
 
     def update_object_data_callback(self,body_size:int = None): # Actualiza las propiedades del objeto
         object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.object_name)  # Obtener id del objeto según el nombre
@@ -170,9 +192,9 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
             mj.mj_step(self.model, self.data)
             mj.mj_forward(self.model, self.data)
 
-            # Accion boton izq raton
-            self.if_mouse_button_left_pressed()
-
+            # Accion boton derecho raton -> MOVER CAMARA
+            self.if_mouse_button_right_pressed()
+            self.if_mouse_scroll_moved()
             # Update de la escena 
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
 
