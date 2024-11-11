@@ -23,6 +23,8 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.size = None
         self.old_size = self.size
 
+        self.mouse_old_x = 0 # ---------------------------------------------------------              EN EDICION        -----------------------------------------
+        self.mouse_old_y = 0 # ---------------------------------------------------------         EN EDICION             -----------------------------------------
         # Nombre del objeto
         self.object_name = "left_sphere"
 
@@ -91,8 +93,8 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 # Accion del boton
                 print("     - Boton derecho presionado:",self.mouse_button_right_pressed)
 
-                self.camera.azimuth = -mouse_x/20
-                self.camera.elevation = mouse_y/20
+                self.camera.azimuth = -(mouse_x-self.mouse_old_x) # EN GRADOS 0 a 360  ---------------------------------------           EN EDICION         ------------------------              
+                self.camera.elevation = -(mouse_y-self.mouse_old_y) # EN GRADOS 0 a 360 --------------------------------------           EN EDICION         ------------------------   
     
                 print(f"-Posicion raton  x: {mouse_x};   y: {mouse_y}")
     
@@ -166,6 +168,8 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def mouse_button_callback(self,window, button, action, mods): # Booleano del click izq del mouse
         global mouse_button_right_pressed
         if button == glfw.MOUSE_BUTTON_RIGHT and action == glfw.PRESS:
+            self.mouse_old_x = mouse_x
+            self.mouse_old_y = mouse_y
             self.mouse_button_right_pressed = True
         else:
             self.mouse_button_right_pressed = False
