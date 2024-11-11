@@ -124,7 +124,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         axis = np.array([0, 0,1 ])  # Eje Z
        
         new_quaternion = R.from_rotvec(angle * axis).as_quat()
-        self.model.body_quat[left_ramp_id] = [65,76,32,5]
+        #self.model.body_quat[left_ramp_id] = [65,76,32,5]
     
         #self.model.body_quat[left_ramp_id]
 
