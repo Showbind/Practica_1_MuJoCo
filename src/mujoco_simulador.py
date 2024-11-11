@@ -113,15 +113,20 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
         # Atributos "left_ramp"
         #self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
-        self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
-        self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
+        #self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
+        #self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
         
-        euler_angles = np.pi/4  # Ejemplo: rotación de 90 grados en Z
-        rotation = R.from_euler('y', euler_angles, degrees=False)
-        quat = rotation.as_quat()  # Convertimos a cuaternión
-        self.model.body_pos[left_ramp_id] = [-1, 0.5, -0.3] 
-        print(quat)
-        self.model.body_quat[left_ramp_id]=quat
+        #euler_angles = 567  # Ejemplo: rotación de 90 grados en Z
+        #rotation = R.from_euler('y', euler_angles, degrees=False)
+        #quat = rotation.as_quat()  # Convertimos a cuaternión
+        #self.model.body_pos[left_ramp_id] = [-1, 0.5, -0.3] 
+        angle = np.radians(-15)
+        axis = np.array([0, 0,1 ])  # Eje Z
+       
+        new_quaternion = R.from_rotvec(angle * axis).as_quat()
+        self.model.body_quat[left_ramp_id] = [65,76,32,5]
+    
+        #self.model.body_quat[left_ramp_id]
 
         # Atributos "right_ramp"
         #self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
@@ -173,7 +178,6 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
             # Cambiar tamaño esfera
             self.if_sphere_size_changed()
-
             # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 

@@ -78,7 +78,7 @@ class Tkinter_UI(object):
 
     # Abre el archivo de configuracion de la simulacion
     def open_json_file(self):
-        self.filepath = filedialog.askopenfilename(title="Abrir archivo configuración simulador", initialdir="./Practicas_POO/Practica_1/src/MuJoCo_config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
+        self.filepath = filedialog.askopenfilename(title="Abrir archivo configuración simulador", initialdir="./src/MuJoCo_config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
        
         try: 
             self.file = open(file=self.filepath)
