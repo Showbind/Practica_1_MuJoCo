@@ -6,4 +6,4 @@ Se ha implementado una instancia de OpenGL la cual renderizá el motor de físic
 ![tkinter_ui](https://github.com/gabi-er/Practicas_POO/blob/main/images/tkinter_ui.png "MuJoCo User Interface")
 
 ## Simulación
-![tkinter_ui](https://github.com/gabi-er/Practicas_POO/blob/main/images/mujoco_sim_1.gif "Simulación")
+![tkinter_ui](https://github.com/gabi-er/Practicas_POO/blob/main/images/mujoco_sim_1.gif "Uso de la interfaz y funcionamiento de la simulación")
