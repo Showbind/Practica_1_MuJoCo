@@ -187,10 +187,11 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
             self.mouse_button_right_pressed = False
 
     def update_object_data_callback(self,body_size:int = None): # Actualiza las propiedades del objeto
-        object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.object_name)  # Obtener id del objeto según el nombre
+        self.object_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.object_name)  # Obtener id del objeto según el nombre
 
         if body_size != None:
-            self.model.geom_size[object_id] = body_size # Asignar nuevo tamaño
+            self.a = self.model.geom_size[self.object_id]
+            self.model.geom_size[self.object_id] = body_size # Asignar nuevo tamaño
 
     def edit_object_data_callback (self, new_object_name:str, new_size:float = None): # Actualiza uno o varios atributos del objeto
         self.object_name = new_object_name

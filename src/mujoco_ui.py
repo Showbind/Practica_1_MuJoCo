@@ -7,6 +7,10 @@ import sys
 
 class Tkinter_UI(object):
     def __init__(self, xml_path):
+        
+        # Valores iniciales slider 
+        self.left_sphere_value=0.3
+        self.right_sphere_value=0.3
 
         # Modo Interfaz
         customtkinter.set_appearance_mode("dark")
@@ -52,16 +56,16 @@ class Tkinter_UI(object):
         self.label.grid(row=0, column=0, padx=33, pady=20, sticky="w")
 
         # Menu Desplegable
-        self.menu_spheres = customtkinter.CTkOptionMenu(self.frame_left, values=["Esfera Izquierda", "Esfera Derecha"], command=self.select_sphere) 
+        self.menu_spheres = customtkinter.CTkOptionMenu(self.frame_left, values=["Esfera Izquierda", "Esfera Derecha"], command=self.select_sphere, button_color="#5b0213",fg_color="#8f0e27") 
         self.menu_spheres.set("Esfera Izquierda")
         self.menu_spheres.grid(row=12, column=0, padx=19, pady=0, sticky="w")
 
         # Boton Ejecutar MuJoCo
-        self.button_run_app = customtkinter.CTkButton(self.frame_left, command=self.button_run_mujoco, text= "Ejecutar MuJoCo")
+        self.button_run_app = customtkinter.CTkButton(self.frame_left, command=self.button_run_mujoco, text= "Ejecutar MuJoCo",fg_color="#8f0e27")
         self.button_run_app.grid(row=1, column=0, padx=19, pady=8, sticky="w") 
 
         # Boton abrir ventana para elegir archivo de configuracion
-        self.open_file_dialog = customtkinter.CTkButton(self.frame_left, command=self.open_json_file, text= "Abrir archivo")
+        self.open_file_dialog = customtkinter.CTkButton(self.frame_left, command=self.open_json_file, text= "Abrir archivo",fg_color="#8f0e27")
         self.open_file_dialog.grid(row=2, column=0, padx=19, pady=8, sticky="w") 
 
     # APP_FRAME       
@@ -118,11 +122,16 @@ class Tkinter_UI(object):
         match value:
             case "Esfera Izquierda":
                 value = "left_sphere"
+                self.right_sphere_value=self.slider_resize_object.get()
+                self.slider_resize_object.set(self.left_sphere_value)
             case "Esfera Derecha":
                 value = "right_sphere"
+                self.left_sphere_value=self.slider_resize_object.get()
+                self.slider_resize_object.set(self.right_sphere_value)
             case _:
                 sys.exit("Los nombres de los valores del menu desplegable 'Esferas', o los del xml han sido cambiados. Necesitan ser actualizados")
         self.mujoco_app.edit_object_data_callback(new_size=None, new_object_name=value) # Envia el nuevo nombre
+        print(self.mujoco_app.model.geom_size[self.mujoco_app.object_id])
 
 #EJECUTAR PROGRAMA
 
