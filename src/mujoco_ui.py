@@ -87,7 +87,7 @@ class Tkinter_UI(object):
         else:  # Llama a la funcion para leer el archivo
             self.file_exists = True
 
-    # Lee el archivo &
+    # Lee e interpreta el archivo 
     def read_file(self):
         self.config_file = self.file.read()
         try:
