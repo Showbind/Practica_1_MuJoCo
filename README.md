@@ -4,6 +4,7 @@ Se ha implementado una instancia de OpenGL la cual renderizá el motor de físic
 
 ## Interfaz de Usuario
 ![tkinter_ui](https://github.com/gabi-er/Practicas_POO/blob/main/images/tkinter_ui.png "MuJoCo User Interface")
+ 
   ### BOTONES
   - Ejecutar MuJoCo: Inicia la simulación con los ajustes predefinidos.
   - Abrir Archivo: Carga un archivo con los parámetros deseados del usuario (formato .json) (archivos .txt, .json)
@@ -11,3 +12,9 @@ Se ha implementado una instancia de OpenGL la cual renderizá el motor de físic
 
 ## Simulación
 ![tkinter_ui](https://github.com/gabi-er/Practicas_POO/blob/main/images/mujoco_sim_1.gif "Uso de la interfaz y funcionamiento de la simulación")
+  
+  ### ARCHIVOS
+  El programa se encuentra divido en tres archivos principales:
+  - main.py : Encargado de ejecutar la interfaz de simulación como tal.
+  - mujoco_ui.py : Gestiona toda la interfaz del simulador y todas las llamadas      creadas por la interacción entre el usuario y la interfaz con el simulador.
+  - mujoco_simulador.py : Crea y gestiona la ventana del simulador, además de iniciar este
