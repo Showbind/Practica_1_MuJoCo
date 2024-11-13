@@ -50,7 +50,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Crear y manejar error ventana
         self.window = glfw.create_window(initial_width,initial_heigth,"MuJoCo: Motor de Fisicas", None, None)
 
-        # Fijar Aspect Ratio (ej: 16:9) 
+        # Fijar Aspect Ratio (ej: 16:9) (OPCIONAL)
             #glfw.set_window_aspect_ratio(window,16,9)
         
         if self.window == False: # En caso de error
@@ -143,16 +143,12 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.data.qpos[right_joint_pos_index:right_joint_pos_index+3] = json_dictionary["right_sphere"]["position"] # Cambia los valores de x,y,z del joint 
 
         # Atributos "left_ramp"
-        #self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
-        #self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
-        #self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
+        self.model.body_quat[left_ramp_id]=json_dictionary["left_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        self.model.geom_size[left_ramp_id]=json_dictionary["left_ramp"]["length"]
+        self.model.geom_friction[left_ramp_id]=json_dictionary["left_ramp"]["friction"]
         
-        #euler_angles = 567  # Ejemplo: rotación de 90 grados en Z
-        #rotation = R.from_euler('y', euler_angles, degrees=False)
-        #quat = rotation.as_quat()  # Convertimos a cuaternión
-        #self.model.body_pos[left_ramp_id] = [-1, 0.5, -0.3] 
-        
-        #self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
+        # Atributos "right_ramp"
+        self.model.body_quat[right_ramp_id]=json_dictionary["right_ramp"]["tilt"] # Hay que hacer operaciones con los quaterniones para solo rotar y no mover la rampa de posicion
         self.model.geom_size[right_ramp_id]=json_dictionary["right_ramp"]["length"]
         self.model.geom_friction[right_ramp_id]=json_dictionary["right_ramp"]["friction"]
 
