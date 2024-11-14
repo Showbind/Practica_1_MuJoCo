@@ -16,5 +16,5 @@ Se ha implementado una instancia de OpenGL la cual renderizá el motor de físic
   ### ARCHIVOS
   El programa se encuentra divido en tres archivos principales:
   - main.py : Encargado de ejecutar la interfaz de simulación como tal.
-  - mujoco_ui.py : Gestiona toda la interfaz del simulador y todas las llamadas      creadas por la interacción entre el usuario y la interfaz con el simulador.
-  - mujoco_simulador.py : Crea y gestiona la ventana del simulador, además de iniciar este
+  - mujoco_ui.py : Gestiona toda la interfaz del simulador y todas las llamadas creadas por la interacción entre el usuario y la interfaz con el simulador.
+  - mujoco_simulador.py : Crea y gestiona la ventana del simulador, además de iniciar todos los modelados e interacciones físicas de la simulación.
