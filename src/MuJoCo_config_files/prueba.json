@@ -12,12 +12,12 @@
         "position":[0.1, 0.1, 0.5]
     },
     "left_ramp": {
-        "tilt": [-5, 0, -1, 0], 
+        "tilt": 125, 
         "length": [0.5, 0.15, 0.01], 
         "friction": [0.8, 0.5, 1]
     },
     "right_ramp": {
-        "tilt": [5, 0, -1, 0], 
+        "tilt": 45, 
         "length":  [0.2, 0.15, 0.01], 
         "friction": [0.8, 0.5, 1]
     }
