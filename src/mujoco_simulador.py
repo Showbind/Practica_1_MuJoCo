@@ -106,21 +106,13 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
     def if_sphere_size_changed(self): # Detecta y cambia el nuevo tamaño de la esfera
         if self.size != self.old_size:  
-               self.update_object_data_callback(sphere_size=self.size)
+               self.update_sphere_size_callback(sphere_size=self.size)
                self.old_size = self.size
 
     def if_ramp_tilt_changed(self): # Detecta y cambia la nueva inclinación de la rampa
         if self.tilt != self.old_tilt:
-            self.change_ramp_tilt()
+            self.change_ramp_tilt_callback()
             self.old_tilt = self.tilt
-
-    def change_ramp_tilt(self): # Cambia el valor de la inclinación de la rampa
-        ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.ramp_name)
-
-        w = np.cos(self.tilt/2)
-        y = np.sin(self.tilt/2)
-        cuaternion = [w,0,y,0]
-        self.model.geom_quat[ramp_id] = cuaternion
 
     def if_mouse_button_right_pressed(self):
         if self.mouse_button_right_pressed == True:
@@ -139,7 +131,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
 # CALLBACKS
 
-    def set_json_object_properties(self,json_dictionary:(dict)=None): # Carga los valores del JSON en el simulador
+    def set_json_object_properties(self,json_dictionary:dict=None): # Carga los valores del JSON en el simulador
     # IDs
 
         # IDs "left_sphere"
@@ -173,8 +165,8 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     # RAMPAS
 
         # Calculo Cuaternion
-        w = lambda angle :np.cos(angle/2)
-        y = lambda angle :np.sin(angle/2)
+        w = lambda angle:np.cos(angle/2)
+        y = lambda angle:np.sin(angle/2)
          
         # Atributos "left_ramp"
         tilt_angle = -2*3.14*(json_dictionary["left_ramp"]["tilt"])/360 # Extraer angulo inclinacion
@@ -220,11 +212,19 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         else: # Si no esta presionado
             self.mouse_button_right_pressed = False
 
-    def update_object_data_callback(self,sphere_size:int = None): # Actualiza las propiedades del objeto
+    def update_sphere_size_callback(self,sphere_size:int = None): # Actualiza el tamaño de la esfera
         self.sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.sphere_name)  # Obtener id del objeto según el nombre
 
         if sphere_size != None:
             self.model.geom_size[self.sphere_id] = sphere_size # Asignar nuevo tamaño
+
+    def change_ramp_tilt_callback(self): # Cambia el valor de la inclinación de la rampa
+        ramp_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, self.ramp_name)
+
+        w = np.cos(self.tilt/2)
+        y = np.sin(self.tilt/2)
+        cuaternion = [w,0,y,0]
+        self.model.geom_quat[ramp_id] = cuaternion
 
     def edit_object_data_callback (self, new_sphere_name:str = None, new_ramp_name:str = None, new_size:float = None, new_tilt:float = None): # Actualiza uno o varios atributos del objeto
         if new_sphere_name != None:
