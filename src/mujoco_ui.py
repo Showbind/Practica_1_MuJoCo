@@ -49,11 +49,11 @@ class Tkinter_UI(object):
 
     # LEFT_FRAME
 
-       # Propiedades
+        # Propiedades
         self.frame_left = customtkinter.CTkFrame(master=self.app, width=150, height=600,border_color="#560d15")
-        self.frame_left.grid(row=0, column=0,rowspan=15,columnspan = 1, padx=2, pady=2, sticky="nsew")
+        self.frame_left.grid(row=0, column=0,rowspan=16,columnspan = 1, padx=2, pady=2, sticky="nsew")
         self.frame_left.grid_rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), weight=1)
-        self.frame_left.grid_propagate(False)
+        self.frame_left.grid_propagate(True)
 
         # Etiqueta_0
         self.label = customtkinter.CTkLabel(self.frame_left, text="MuJoCo", font=self.font_arial_30, fg_color="#2b2b2b")
@@ -89,11 +89,40 @@ class Tkinter_UI(object):
         
         # Etiqueta Slider Esferas
         self.label_sphere = customtkinter.CTkLabel(self.app, text="-Tamaño Esfera", fg_color="transparent")
-        self.label_sphere.grid(row=12, column=4, padx=0, pady=0, sticky="w")
+        self.label_sphere.grid(row=12, column=4, padx=5, pady=0, sticky="w")
 
         # Etiqueta Slider Inclinacion Rampa
         self.label_ramp = customtkinter.CTkLabel(self.app, text="-Inclinacion Rampa", fg_color="transparent")
-        self.label_ramp.grid(row=10, column=4, padx=0, pady=0, sticky="w")
+        self.label_ramp.grid(row=10, column=4, padx=5, pady=0, sticky="w")
+        
+
+
+
+
+# ----------------------------------------------------------------------------------------------
+                                         # STILL BUILDING THIS 
+# ----------------------------------------------------------------------------------------------
+    # BOTTON_FRAME
+
+        # Propiedades
+        self.frame_botton = customtkinter.CTkFrame(master=self.app, width=150, height=600,border_color="#560d15")
+        self.frame_botton.grid(row=0, column=1,rowspan=8,columnspan = 15, padx=2, pady=2, sticky="nsew")
+        self.frame_botton.grid_rowconfigure((0,1,2,3,4,5,6,7,8,9), weight=1)
+        self.frame_botton.grid_columnconfigure((1,2,3,4,5,6,7,8,9,10), weight=1)
+        self.frame_botton.grid_propagate(True)
+
+        # Canvas de la Grafica
+        self.canvas_width = 1000
+        self.canvas_height = 650
+        self.canvas_center_x = self.canvas_width // 2
+        self.canvas_center_y = self.canvas_height // 2
+        self.canvas = customtkinter.CTkCanvas(self.frame_botton, width=self.canvas_width, height=self.canvas_height, bg="#373F51")
+        self.canvas.grid(row=5, column=5, padx=(0,0), pady=0)
+        self.canvas.pack(fill="both", expand=True, padx=20, pady=20)
+
+
+
+
 
 
 # CALLBACKS 
@@ -105,7 +134,7 @@ class Tkinter_UI(object):
         try: 
             self.file = open(file=self.filepath)
         except OSError:
-            print("Error: No se ha elegido ningun archivo o el archivo ha crasheado")
+            print("Error: No se ha elegido ningun archivo o el archivo ha sufrido un error inesperado.")
         else:  # Llama a la funcion para leer el archivo
             self.file_exists = True
 
@@ -146,7 +175,7 @@ class Tkinter_UI(object):
 
         print(f"         -Inclinación Rampa: {format(180-rads_to_degs,'.2f')}°")
 
-    # Pasa el nombre de la esfera 
+    # Para determinar a que esfera afecta el slider 
     def select_sphere(self, value): 
         match value:
             case "Esfera Izquierda":
@@ -162,6 +191,7 @@ class Tkinter_UI(object):
 
         self.mujoco_app.edit_object_data_callback(new_sphere_name=value) # Envia el nuevo nombre
 
+    # Para determinar a que rampa afecta el slider
     def select_ramps(self,value):
         match value:
             case "Rampa Izquierda":

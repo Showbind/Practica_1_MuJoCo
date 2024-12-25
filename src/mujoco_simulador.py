@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
-    def __init__(self,initial_width:int,initial_heigth:int,xml_path): 
+    def __init__(self, initial_width:int, initial_heigth:int, xml_path): 
 
     # PROPIEDADES RENDERIZADO
 

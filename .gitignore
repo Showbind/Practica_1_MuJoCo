@@ -5,3 +5,4 @@ __pycache__
 editar_xml_mujoco.py
 MUJOCO_LOG.txt
 test.py
+GUI_Plot.py
