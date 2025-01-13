@@ -7,7 +7,6 @@ from scipy.spatial.transform import Rotation as R
 
 class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self, initial_width:int, initial_heigth:int, xml_path): 
-
     # PROPIEDADES RENDERIZADO
 
         # Resolucion Inicial renderizado
@@ -29,21 +28,29 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
         # Estado de los botones
         self.mouse_button_right_pressed = False
 
-    # PROPIEDADES CAMARA
+    # PROPIEDADES INICIALES CAMARA
 
         # Desplazamiento Angular
         self.old_camera_azimuth = 90
         self.old_camera_elevation = -45
 
-    # PROPIEDADES ESFERA
+    # PROPIEDADES INICIALES ESFERA
 
         # Tamaño ESFERA
         self.size = None
         self.old_size = self.size
 
         self.sphere_name = "left_sphere" 
+        
+        # Coordenadas Esfera Izquierda
+        self.left_sphere_x_pos = None
+        self.right_sphere_x_pos = None
 
-    # PROPIEDADES RAMPA
+        # Coordenadas Esfera Derecha
+        self.left_sphere_y_pos = None
+        self.right_sphere_y_pos = None
+
+    # PROPIEDADES INICIALES RAMPA
 
         # Inclinacion Rampa
         self.tilt = None
@@ -201,6 +208,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
     def mouse_button_callback(self,window, button, action, mods): # Booleano del click izq del mouse
         global mouse_button_right_pressed
+
         if button == glfw.MOUSE_BUTTON_RIGHT and action == glfw.PRESS: # Si se presiona el boton
             self.mouse_old_x = mouse_x
             self.mouse_old_y = mouse_y
@@ -242,8 +250,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 # RUNTIME
 
     # Ejecuta MuJoCo después de abrir la ventana
-    def run(self): 
-            
+    def run(self):  
         while glfw.window_should_close(self.window) == False:
             #Renderizado
             mj.mj_step(self.model, self.data)
@@ -258,14 +265,21 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
             # Cambiar Inclinacion Rampa
             self.if_ramp_tilt_changed()
-            
-            # Update de la escena 
+
+            # Obtener Posiciones Esferas
+            left_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere")
+            self.left_sphere_x_pos = self.data.geom_xpos[left_sphere_id][0]
+            self.left_sphere_y_pos = self.data.geom_xpos[left_sphere_id][1]
+
+            right_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_sphere")
+            self.right_sphere_x_pos = self.data.geom_xpos[right_sphere_id][0]
+            self.right_sphere_y_pos = self.data.geom_xpos[right_sphere_id][1]
+
+            # Actualizar y renderizar la escena
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
-            
-            # Render de la escena 
             mj.mjr_render(mj.MjrRect(0, 0, self.rendering_width, self.rendering_heigth), self.scene, self.context)
 
-            # Intercambiar buffers (Velocidad establecida por V-Sync) 
+            # Intercambiar buffers (Velocidad establecida por la Sincronización Vertical, Doble Buffer) 
             glfw.swap_buffers(self.window)
             glfw.poll_events()
 

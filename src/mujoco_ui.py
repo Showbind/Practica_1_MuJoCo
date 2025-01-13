@@ -7,35 +7,52 @@ import sys
 
 class Tkinter_UI(object):
     def __init__(self, xml_path):
+    # VARIABLES INICIALIZACIÓN
+
+        # Inicialización del objeto
+        self.mujoco_app = None
         
         # Valores iniciales slider esfera
         self.left_sphere_value = 0.3
-        self.right_sphere_value = 0.3
+        self.right_sphere_value = 0.3 
+
+        # Tamaño Canvas
+        self.canvas_width = 900-4 # "-4" Para corregir la escala (sin el menos -4 la escala sería resolución_horizontal+4)
+        self.canvas_height = 528-4
+
+        # Valores iniciales esferas canvas
+        self.left_sphere_old_x_pos = 0 
+        self.left_sphere_old_y_pos = 0
+
+        self.right_sphere_old_x_pos = 0
+        self.right_sphere_old_y_pos = 0
 
         # Valores iniciales slider rampa
         self.left_ramp_value = 0.785
         self.right_ramp_value = 0.785
 
-        # Modo Interfaz
+        # Modo UI
         customtkinter.set_appearance_mode("dark")
-
-        # Flags
-        self.file_exists = False
 
         # Hilo MuJoCo
         self.thread_is_running = False # Estado del hilo
         self.mujoco_thread = threading.Thread(target=self.run_mujoco, daemon= True) # Definir hilo
 
+        # Hilo Canvas UI
+        self.event = threading.Event()
+        self.draw_graph_thread = threading.Thread(target=self.draw_graph, daemon= True)
+
+        # Flags
+        self.file_exists = False
+
         # Path del archivo xml de MuJoCo
         self.xml_path = xml_path
-
-        # Inicialización del objeto
-        self.mujoco_app = None
 
         # Main Window
         self.app = customtkinter.CTk()
         self.app.title("MuJoCo: UI_Panel")
-        self.app.geometry("960x540")
+        self.app.geometry("1200x760")
+        self.app.resizable(True, True)
 
     # WIDGETS
 
@@ -78,7 +95,7 @@ class Tkinter_UI(object):
         self.open_file_dialog.grid(row=2, column=0, padx=19, pady=8, sticky="w") 
 
     # MAIN_FRAME       
-        
+
         # Slider tamaño esfera
         self.slider_resize_sphere = customtkinter.CTkSlider(master=self.app, from_=0.01, to=0.3, command=self.resize_object)
         self.slider_resize_sphere.grid(row=12, column=5, padx=0, pady=0, sticky="w")
@@ -95,42 +112,73 @@ class Tkinter_UI(object):
         self.label_ramp = customtkinter.CTkLabel(self.app, text="-Inclinacion Rampa", fg_color="transparent")
         self.label_ramp.grid(row=10, column=4, padx=5, pady=0, sticky="w")
         
-
-
-
-
-# ----------------------------------------------------------------------------------------------
-                                         # STILL BUILDING THIS 
-# ----------------------------------------------------------------------------------------------
-    # BOTTON_FRAME
+    # TOP_FRAME
 
         # Propiedades
-        self.frame_botton = customtkinter.CTkFrame(master=self.app, width=150, height=600,border_color="#560d15")
-        self.frame_botton.grid(row=0, column=1,rowspan=8,columnspan = 15, padx=2, pady=2, sticky="nsew")
-        self.frame_botton.grid_rowconfigure((0,1,2,3,4,5,6,7,8,9), weight=1)
-        self.frame_botton.grid_columnconfigure((1,2,3,4,5,6,7,8,9,10), weight=1)
-        self.frame_botton.grid_propagate(True)
+        self.frame_top = customtkinter.CTkFrame(master=self.app, width=150, height=600,border_color="#560d15")
+        self.frame_top.grid(row=0, column=1,rowspan=8,columnspan = 15, padx=2, pady=2, sticky="nsew")
+        self.frame_top.grid_rowconfigure((0,1,2,3,4,5,6,7,8,9), weight=1)
+        self.frame_top.grid_columnconfigure((1,2,3,4,5,6,7,8,9,10), weight=1)
+        self.frame_top.grid_propagate(False)
 
         # Canvas de la Grafica
-        self.canvas_width = 1000
-        self.canvas_height = 650
-        self.canvas_center_x = self.canvas_width // 2
-        self.canvas_center_y = self.canvas_height // 2
-        self.canvas = customtkinter.CTkCanvas(self.frame_botton, width=self.canvas_width, height=self.canvas_height, bg="#373F51")
+        self.canvas_center_x = self.canvas_width / 2
+        self.canvas_center_y = self.canvas_height /  2
+        
+        self.canvas = customtkinter.CTkCanvas(self.frame_top, width=self.canvas_width, height=self.canvas_height, bg="#373F51")
         self.canvas.grid(row=5, column=5, padx=(0,0), pady=0)
-        self.canvas.pack(fill="both", expand=True, padx=20, pady=20)
+        #self.canvas.pack(fill="both", expand=False, padx=20, pady=20)
+        self.canvas.bind("<Configure>", lambda event: self.draw_axis(canvas_new_heigth = self.canvas.winfo_height(), canvas_new_width = self.canvas.winfo_width()))
 
+    def draw_axis(self, canvas_new_width=900-4, canvas_new_heigth=(528-4)):
+        self.canvas.delete("all")
 
+        # Grid Vertical
+        for x_grid in range(0, canvas_new_width, 22):
+            self.canvas.create_line(x_grid, 0, x_grid, canvas_new_heigth, fill="#4C5770", width=1)
 
+        # Grid Horizontal
+        for y_grid in range(0, canvas_new_heigth, 22):
+            self.canvas.create_line(0, y_grid, canvas_new_width, y_grid, fill="#4C5770", width=1)
+        
+        self.canvas.create_line(0, canvas_new_heigth/2, canvas_new_width, canvas_new_heigth/2, fill="#FFFFFF", width=1) # Eje x
+        self.canvas.create_line(canvas_new_width/2, 0, canvas_new_width/2, canvas_new_heigth, fill="#FFFFFF", width=1) # Eje y
 
+        print(f"Resolucion Canvas: {self.canvas.winfo_width()} x {self.canvas.winfo_height()}")
 
+    def draw_graph(self): # Graficar el desplazamiento de las esferas en el plano x,y
+        # Datos Canvas
+        center_x = int(self.canvas.winfo_width()) / 2
+        center_y = int(self.canvas.winfo_height()) / 2
+        growth_factor = 1.5 # Para mostrar un crecimiento de la gráfica mayor o menor
+
+        # Esfera Izquierda
+        left_sphere_x = self.mujoco_app.left_sphere_x_pos
+        left_sphere_y = - self.mujoco_app.left_sphere_y_pos * growth_factor
+
+        self.canvas.create_line(center_x + self.left_sphere_old_x_pos, center_y + self.left_sphere_old_y_pos,  center_x + left_sphere_x , center_y + left_sphere_y, fill="#58A4B0", width=2)
+
+        self.left_sphere_old_x_pos =  left_sphere_x 
+        self.left_sphere_old_y_pos =  left_sphere_y 
+
+        # Esfera Derecha
+        right_sphere_x = self.mujoco_app.right_sphere_x_pos * growth_factor
+        right_sphere_y = - self.mujoco_app.right_sphere_y_pos * growth_factor
+
+        self.canvas.create_line(center_x + self.right_sphere_old_x_pos, center_y + self.right_sphere_old_y_pos, center_x + right_sphere_x, center_y + right_sphere_y, fill="#E91137", width=2)
+
+        self.right_sphere_old_x_pos =  right_sphere_x
+        self.right_sphere_old_y_pos =  right_sphere_y
+
+        # Tiempo de espera actualización gráfica(en ms)
+        self.canvas.after(500, self.draw_graph)       
 
 # CALLBACKS 
 
     # Abre el archivo de configuracion de la simulacion
     def open_json_file(self):
         self.filepath = filedialog.askopenfilename(title="Abrir archivo configuración simulador", initialdir="./src/config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
-       
+
         try: 
             self.file = open(file=self.filepath)
         except OSError:
@@ -153,23 +201,27 @@ class Tkinter_UI(object):
     # Ejecuta MuJoCo
     def button_run_mujoco(self): 
         if self.thread_is_running == False: 
-            self.thread_is_running = True 
-            self.mujoco_thread.start()
+            self.thread_is_running = True  
+
+            self.mujoco_thread.start() # Empieza el simulador
+            self.event.wait()  # Espera a iniciar el simulador
+            self.draw_graph_thread.start() # Empieza a dibujar en el canvas
         elif self.mujoco_thread.is_alive() == False and self.thread_is_running == True:
             print("Simulacion finalizada. Cierre la UI")
         else:   
             print("Ya hay iniciada una instancia de MuJoCo")
 
-    # Pasa el tamaño de la esfera
+    # Pasa el valor del tamaño de la esfera
     def resize_object(self, value): 
         self.mujoco_app.edit_object_data_callback(new_sphere_name=self.mujoco_app.sphere_name, new_size=value)
         print(f"    -Tamaño Esfera: {value}")
 
-    # Pasa el angulo de la rampa
+    # Pasa el valor del angulo de la rampa
     def ramp_tilt(self, value): 
         self.mujoco_app.edit_object_data_callback(new_ramp_name=self.mujoco_app.ramp_name, new_tilt=value)
        
         rads_to_degs = value*180/3.14
+
         if rads_to_degs > 360:
             rads_to_degs = rads_to_degs/360
 
@@ -217,11 +269,13 @@ class Tkinter_UI(object):
     # Ejecuta MuJoCo
     def run_mujoco(self): 
         self.mujoco_app = OpenMujoco(960,540,self.xml_path)
+        self.event.set()
+
         if self.file_exists == True:
             self.read_file()
-            
-        self.mujoco_app.run()
 
+        self.mujoco_app.run()
+        
 def main():
     programa = Tkinter_UI("src\\models\\esfera.xml")
     programa.start_tkinter()
