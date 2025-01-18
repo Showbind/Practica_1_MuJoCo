@@ -4,8 +4,9 @@ import json
 import customtkinter
 import threading
 import sys
+from src.interfaces import Canvas, Read_Json
 
-class Tkinter_UI(object):
+class Tkinter_UI(Canvas, Read_Json):
     def __init__(self, xml_path):
     # VARIABLES INICIALIZACIÓN
 
@@ -36,7 +37,7 @@ class Tkinter_UI(object):
 
         # Hilo MuJoCo
         self.thread_is_running = False # Estado del hilo
-        self.mujoco_thread = threading.Thread(target=self.run_mujoco, daemon= True) # Definir hilo
+        self.mujoco_thread = threading.Thread(target=self.run, daemon= True) # Definir hilo
 
         # Hilo Canvas UI
         self.event = threading.Event()
@@ -175,8 +176,7 @@ class Tkinter_UI(object):
 
 # CALLBACKS 
 
-    # Abre el archivo de configuracion de la simulacion
-    def open_json_file(self):
+    def open_json_file(self): # Abre el archivo de configuracion de la simulacion
         self.filepath = filedialog.askopenfilename(title="Abrir archivo configuración simulador", initialdir="./src/config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
 
         try: 
@@ -186,8 +186,7 @@ class Tkinter_UI(object):
         else:  # Llama a la funcion para leer el archivo
             self.file_exists = True
 
-    # Lee e interpreta el archivo 
-    def read_file(self):
+    def read_file(self): # Lee e interpreta el archivo 
         self.config_file = self.file.read()
 
         try:
@@ -197,9 +196,8 @@ class Tkinter_UI(object):
         else: # Carga los ajustes seleccionados
             self.mujoco_app.set_json_object_properties(self.js) 
             print("\n     - Archivo JSON valido. Se cargará la configuración.\n")
-
-    # Ejecuta MuJoCo
-    def button_run_mujoco(self): 
+ 
+    def button_run_mujoco(self): # Ejecuta MuJoCo
         if self.thread_is_running == False: 
             self.thread_is_running = True  
 
@@ -211,13 +209,11 @@ class Tkinter_UI(object):
         else:   
             print("Ya hay iniciada una instancia de MuJoCo")
 
-    # Pasa el valor del tamaño de la esfera
-    def resize_object(self, value): 
+    def resize_object(self, value): # Pasa el valor del tamaño de la esfera
         self.mujoco_app.edit_object_data_callback(new_sphere_name=self.mujoco_app.sphere_name, new_size=value)
         print(f"    -Tamaño Esfera: {value}")
 
-    # Pasa el valor del angulo de la rampa
-    def ramp_tilt(self, value): 
+    def ramp_tilt(self, value): # Pasa el valor del angulo de la rampa
         self.mujoco_app.edit_object_data_callback(new_ramp_name=self.mujoco_app.ramp_name, new_tilt=value)
        
         rads_to_degs = value*180/3.14
@@ -226,9 +222,8 @@ class Tkinter_UI(object):
             rads_to_degs = rads_to_degs/360
 
         print(f"         -Inclinación Rampa: {format(180-rads_to_degs,'.2f')}°")
-
-    # Para determinar a que esfera afecta el slider 
-    def select_sphere(self, value): 
+ 
+    def select_sphere(self, value): # Para determinar a que esfera afecta el slider
         match value:
             case "Esfera Izquierda":
                 value = "left_sphere"
@@ -243,8 +238,7 @@ class Tkinter_UI(object):
 
         self.mujoco_app.edit_object_data_callback(new_sphere_name=value) # Envia el nuevo nombre
 
-    # Para determinar a que rampa afecta el slider
-    def select_ramps(self,value):
+    def select_ramps(self,value): # Para determinar a que rampa afecta el slider
         match value:
             case "Rampa Izquierda":
                 value = "left_ramp"
@@ -261,13 +255,11 @@ class Tkinter_UI(object):
         self.mujoco_app.edit_object_data_callback(new_ramp_name=value) # Envia el nuevo nombre
 
 #EJECUTAR PROGRAMA
-
-    # Ejecuta CustomTkinter
-    def start_tkinter(self):
+    
+    def start_tkinter(self): # Ejecuta CustomTkinter
         self.app.mainloop()
 
-    # Ejecuta MuJoCo
-    def run_mujoco(self): 
+    def run(self): # Ejecuta MuJoCo
         self.mujoco_app = OpenMujoco(960,540,self.xml_path)
         self.event.set()
 

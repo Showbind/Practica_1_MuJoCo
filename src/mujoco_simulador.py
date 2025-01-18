@@ -3,9 +3,11 @@ from mujoco.glfw import glfw
 import numpy as np
 import glfw
 import numpy as np
+from abc import ABC, abstractmethod
 from scipy.spatial.transform import Rotation as R
+from src.interfaces import Runtime_Interface
 
-class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
+class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self, initial_width:int, initial_heigth:int, xml_path): 
     # PROPIEDADES RENDERIZADO
 
@@ -249,8 +251,7 @@ class OpenMujoco: # Abrir ventana (OpenGL) e Iniciar MuJoCo
 
 # RUNTIME
 
-    # Ejecuta MuJoCo después de abrir la ventana
-    def run(self):  
+    def run(self):  # Ejecuta MuJoCo después de abrir la ventana
         while glfw.window_should_close(self.window) == False:
             #Renderizado
             mj.mj_step(self.model, self.data)
