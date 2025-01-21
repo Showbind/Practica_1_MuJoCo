@@ -6,3 +6,5 @@ editar_xml_mujoco.py
 MUJOCO_LOG.txt
 test.py
 GUI_Plot.py
+src/models/images/
+

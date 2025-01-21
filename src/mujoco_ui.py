@@ -1,14 +1,14 @@
 from src.mujoco_simulador import OpenMujoco
 from tkinter import filedialog
-import json
-import customtkinter
-import threading
-import sys
-from src.interfaces import Canvas, Read_Json
+import json, customtkinter, threading, sys
+from src.interfaces import Canvas, ReadJson, DataOutOfGraphError, DataLog
 
-class Tkinter_UI(Canvas, Read_Json):
+class Tkinter_UI(Canvas, ReadJson, DataOutOfGraphError, DataLog):
     def __init__(self, xml_path):
     # VARIABLES INICIALIZACIÓN
+
+        # Crear log para la UI
+        DataLog.__init__(self, "User_Interface")
 
         # Inicialización del objeto
         self.mujoco_app = None
@@ -22,11 +22,11 @@ class Tkinter_UI(Canvas, Read_Json):
         self.canvas_height = 528-4
 
         # Valores iniciales esferas canvas
-        self.left_sphere_old_x_pos = 0 
-        self.left_sphere_old_y_pos = 0
+        self.left_sphere_old_x = 0 
+        self.left_sphere_old_z = 0
 
-        self.right_sphere_old_x_pos = 0
-        self.right_sphere_old_y_pos = 0
+        self.right_sphere_old_x = 0
+        self.right_sphere_old_z = 0
 
         # Valores iniciales slider rampa
         self.left_ramp_value = 0.785
@@ -145,44 +145,57 @@ class Tkinter_UI(Canvas, Read_Json):
         self.canvas.create_line(0, canvas_new_heigth/2, canvas_new_width, canvas_new_heigth/2, fill="#FFFFFF", width=1) # Eje x
         self.canvas.create_line(canvas_new_width/2, 0, canvas_new_width/2, canvas_new_heigth, fill="#FFFFFF", width=1) # Eje y
 
-        print(f"Resolucion Canvas: {self.canvas.winfo_width()} x {self.canvas.winfo_height()}")
+        self.write_log_file("Canvas", f"Resolucion Canvas: {self.canvas.winfo_width()} x {self.canvas.winfo_height()}")
 
     def draw_graph(self): # Graficar el desplazamiento de las esferas en el plano x,y
         # Datos Canvas
-        center_x = int(self.canvas.winfo_width()) / 2
-        center_y = int(self.canvas.winfo_height()) / 2
-        growth_factor = 1.5 # Para mostrar un crecimiento de la gráfica mayor o menor
+        self.center_x = int(self.canvas.winfo_width()) / 2
+        self.center_y = int(self.canvas.winfo_height()) / 2
+        growth_factor = 2.5 # Para mostrar un crecimiento de la gráfica mayor o menor
 
         # Esfera Izquierda
-        left_sphere_x = self.mujoco_app.left_sphere_x_pos
-        left_sphere_y = - self.mujoco_app.left_sphere_y_pos * growth_factor
+        self.left_sphere_x = self.mujoco_app.left_sphere_x_pos * growth_factor
+        self.left_sphere_z = - self.mujoco_app.left_sphere_z_pos * growth_factor
 
-        self.canvas.create_line(center_x + self.left_sphere_old_x_pos, center_y + self.left_sphere_old_y_pos,  center_x + left_sphere_x , center_y + left_sphere_y, fill="#58A4B0", width=2)
+        self.canvas.create_line(self.center_x + self.left_sphere_old_x, self.center_y + self.left_sphere_old_z,  self.center_x + self.left_sphere_x , self.center_y + self.left_sphere_z, fill="#58A4B0", width=2)
 
-        self.left_sphere_old_x_pos =  left_sphere_x 
-        self.left_sphere_old_y_pos =  left_sphere_y 
+        self.left_sphere_old_x =  self.left_sphere_x 
+        self.left_sphere_old_z =  self.left_sphere_z 
 
         # Esfera Derecha
-        right_sphere_x = self.mujoco_app.right_sphere_x_pos * growth_factor
-        right_sphere_y = - self.mujoco_app.right_sphere_y_pos * growth_factor
+        self.right_sphere_x = self.mujoco_app.right_sphere_x_pos * growth_factor
+        self.right_sphere_z = - self.mujoco_app.right_sphere_z_pos * growth_factor
 
-        self.canvas.create_line(center_x + self.right_sphere_old_x_pos, center_y + self.right_sphere_old_y_pos, center_x + right_sphere_x, center_y + right_sphere_y, fill="#E91137", width=2)
+        self.canvas.create_line(self.center_x + self.right_sphere_old_x, self.center_y + self.right_sphere_old_z, self.center_x + self.right_sphere_x, self.center_y + self.right_sphere_z, fill="#E91137", width=2)
 
-        self.right_sphere_old_x_pos =  right_sphere_x
-        self.right_sphere_old_y_pos =  right_sphere_y
+        self.right_sphere_old_x =  self.right_sphere_x
+        self.right_sphere_old_z =  self.right_sphere_z
 
-        # Tiempo de espera actualización gráfica(en ms)
-        self.canvas.after(500, self.draw_graph)       
+        # Actualizar representación de los datos
+        try:
+            self.check_canvas_limit()
+        except DataOutOfGraphError as error:
+            self.write_log_file("Error", error)
+            self.write_log_file("Error", "Se detendra la representacion de los datos en la grafica." )
+        else:
+            self.canvas.after(500, self.draw_graph) # Tiempo de espera actualización gráfica(en ms)
 
+    def check_canvas_limit(self):
+        if (abs(self.left_sphere_x) + self.center_x) > self.canvas.winfo_width():
+            raise DataOutOfGraphError(sphere="Izquierda")
+        elif (abs(self.right_sphere_x) + self.center_x) > self.canvas.winfo_width(): 
+            raise DataOutOfGraphError(sphere="Derecha")
+        else:
+            pass
 # CALLBACKS 
 
     def open_json_file(self): # Abre el archivo de configuracion de la simulacion
-        self.filepath = filedialog.askopenfilename(title="Abrir archivo configuración simulador", initialdir="./src/config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
+        self.filepath = filedialog.askopenfilename(title="Abrir archivo configuracion simulador", initialdir="./src/config_files", filetypes=[("Archivos JSON", "*.json"),("Archivos .txt","*.txt")])
 
         try: 
             self.file = open(file=self.filepath)
         except OSError:
-            print("Error: No se ha elegido ningun archivo o el archivo ha sufrido un error inesperado.")
+            self.write_log_file("Error", "No se ha elegido ningun archivo o el archivo ha sufrido un error inesperado.")
         else:  # Llama a la funcion para leer el archivo
             self.file_exists = True
 
@@ -192,10 +205,10 @@ class Tkinter_UI(Canvas, Read_Json):
         try:
             self.js = json.loads(self.config_file)
         except json.JSONDecodeError:
-            print("\n     -Error: Formato del JSON incorrecto. Se cargará la configuración predeterminada.\n")
+            self.write_log_file("Error", "Formato del JSON incorrecto. Se cargara la configuracion predeterminada.")
         else: # Carga los ajustes seleccionados
             self.mujoco_app.set_json_object_properties(self.js) 
-            print("\n     - Archivo JSON valido. Se cargará la configuración.\n")
+            self.write_log_file("Json", "Archivo JSON valido. Se cargara la configuracion.")
  
     def button_run_mujoco(self): # Ejecuta MuJoCo
         if self.thread_is_running == False: 
@@ -205,13 +218,13 @@ class Tkinter_UI(Canvas, Read_Json):
             self.event.wait()  # Espera a iniciar el simulador
             self.draw_graph_thread.start() # Empieza a dibujar en el canvas
         elif self.mujoco_thread.is_alive() == False and self.thread_is_running == True:
-            print("Simulacion finalizada. Cierre la UI")
+            self.write_log_file("MuJoCo", "Simulacion finalizada. Cierre la UI")
         else:   
-            print("Ya hay iniciada una instancia de MuJoCo")
+            self.write_log_file("MuJoCo", "Ya hay iniciada una instancia de MuJoCo")
 
     def resize_object(self, value): # Pasa el valor del tamaño de la esfera
         self.mujoco_app.edit_object_data_callback(new_sphere_name=self.mujoco_app.sphere_name, new_size=value)
-        print(f"    -Tamaño Esfera: {value}")
+        self.write_log_file("Esfera", f"Tamaño Esfera: {value}")
 
     def ramp_tilt(self, value): # Pasa el valor del angulo de la rampa
         self.mujoco_app.edit_object_data_callback(new_ramp_name=self.mujoco_app.ramp_name, new_tilt=value)
@@ -221,7 +234,7 @@ class Tkinter_UI(Canvas, Read_Json):
         if rads_to_degs > 360:
             rads_to_degs = rads_to_degs/360
 
-        print(f"         -Inclinación Rampa: {format(180-rads_to_degs,'.2f')}°")
+        self.write_log_file("Rampa", f"Inclinacion Rampa: {format(180-rads_to_degs,'.2f')}" )
  
     def select_sphere(self, value): # Para determinar a que esfera afecta el slider
         match value:
@@ -249,8 +262,11 @@ class Tkinter_UI(Canvas, Read_Json):
                 self.left_ramp_value = self.slider_ramp_tilt.get()
                 self.slider_ramp_tilt.set(self.right_ramp_value)
             case _:
-                print(value)
-                sys.exit("Los nombres de los valores del menu desplegable 'Rampas', o los del xml han sido cambiados. Necesitan ser actualizados")
+                self.write_log_file("Rampa", f"Nombre rampa {value}")
+                
+                message = "Los nombres de los valores del menu desplegable 'Rampas', o los del xml han sido cambiados. Necesitan ser actualizados."
+                sys.exit(message)
+                self.write_log_file("Error", message )
 
         self.mujoco_app.edit_object_data_callback(new_ramp_name=value) # Envia el nuevo nombre
 

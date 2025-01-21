@@ -5,10 +5,13 @@ import glfw
 import numpy as np
 from abc import ABC, abstractmethod
 from scipy.spatial.transform import Rotation as R
-from src.interfaces import Runtime_Interface
+from src.interfaces import RuntimeInterface, DataLog
 
-class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
+class OpenMujoco(RuntimeInterface, DataLog): # Abrir ventana (OpenGL) e Iniciar MuJoCo
     def __init__(self, initial_width:int, initial_heigth:int, xml_path): 
+    
+        DataLog.__init__(self, "MuJoCo")
+  
     # PROPIEDADES RENDERIZADO
 
         # Resolucion Inicial renderizado
@@ -49,8 +52,8 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.right_sphere_x_pos = None
 
         # Coordenadas Esfera Derecha
-        self.left_sphere_y_pos = None
-        self.right_sphere_y_pos = None
+        self.left_sphere_z_pos = None
+        self.right_sphere__pos = None
 
     # PROPIEDADES INICIALES RAMPA
 
@@ -65,7 +68,9 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
         try:
             glfw.init() 
         except:
-            raise("Error al iniciar glfw")
+            error_message="Error al iniciar glfw"
+            raise(self.write_log_file("OpenGL", error_message))
+
         
         # Crear y manejar error ventana
         self.window = glfw.create_window(initial_width,initial_heigth,"MuJoCo: Motor de Fisicas", None, None)
@@ -76,7 +81,8 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
         if self.window == False: # En caso de error
             glfw.terminate()
             glfw.viewport()
-            raise("Error al abrir la ventana de la aplicación")
+            error_message="Error al abrir la ventana de la aplicacion"
+            raise(self.write_log_file("OpenGL", error_message))
         
         # Establecer el contexto de OpenGL
         glfw.make_context_current(self.window)
@@ -128,15 +134,15 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
                 # Girar Camara
                 self.camera.azimuth = self.old_camera_azimuth-(mouse_x-self.mouse_old_x)*0.5
                 self.camera.elevation = self.old_camera_elevation-(mouse_y-self.mouse_old_y)*0.5
-    
-                print(f"-Posicion raton  x: {mouse_x};   y: {mouse_y}")
+
+                self.write_log_file("Puntero Raton", f"Posicion raton  x: {mouse_x};   y: {mouse_y}")
     
     def if_mouse_scroll_moved(self): # Cambiar distancia camara
         if self.mouse_scroll_changed == True:
             self.camera.distance = self.scroll_offset
             self.mouse_scroll_changed = False
 
-            print("Scroll Raton Valor:",self.scroll_offset)
+            self.write_log_file("Camara", f"Distancia: {self.scroll_offset}")
 
 # CALLBACKS
 
@@ -197,7 +203,7 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
         self.rendering_width = width
         self.rendering_heigth = heigth
 
-        print(f"- Resolucion actual: {width}, {heigth}") 
+        self.write_log_file("Ventana MuJoCo", f"Resolucion actual: {width}, {heigth}")
 
     def mouse_scroll_callback(self, window, xoffset: float, yoffset: float): # Asigna valor scroll raton
         self.scroll_offset = self.scroll_offset-(yoffset/5)
@@ -270,11 +276,11 @@ class OpenMujoco(Runtime_Interface): # Abrir ventana (OpenGL) e Iniciar MuJoCo
             # Obtener Posiciones Esferas
             left_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "left_sphere")
             self.left_sphere_x_pos = self.data.geom_xpos[left_sphere_id][0]
-            self.left_sphere_y_pos = self.data.geom_xpos[left_sphere_id][1]
+            self.left_sphere_z_pos = self.data.geom_xpos[left_sphere_id][2]
 
             right_sphere_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, "right_sphere")
             self.right_sphere_x_pos = self.data.geom_xpos[right_sphere_id][0]
-            self.right_sphere_y_pos = self.data.geom_xpos[right_sphere_id][1]
+            self.right_sphere_z_pos = self.data.geom_xpos[right_sphere_id][2]
 
             # Actualizar y renderizar la escena
             mj.mjv_updateScene(self.model, self.data, self.opt, None, self.camera, mj.mjtCatBit.mjCAT_ALL.value, self.scene)
