@@ -135,7 +135,7 @@ class OpenMujoco(RuntimeInterface, DataLog): # Abrir ventana (OpenGL) e Iniciar 
                 self.camera.azimuth = self.old_camera_azimuth-(mouse_x-self.mouse_old_x)*0.5
                 self.camera.elevation = self.old_camera_elevation-(mouse_y-self.mouse_old_y)*0.5
 
-                self.write_log_file("Puntero Raton", f"Posicion raton  x: {mouse_x};   y: {mouse_y}")
+                self.write_log_file("Raton", f"Posicion raton  x: {mouse_x};   y: {mouse_y}")
     
     def if_mouse_scroll_moved(self): # Cambiar distancia camara
         if self.mouse_scroll_changed == True:

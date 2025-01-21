@@ -31,7 +31,7 @@ class DataOutOfGraphError(Exception):
 class DataLog:
     def __init__(self, type: str):
             actual_date =  datetime.now().strftime("%d-%m_%H-%M-%S")
-            self.logfile_path = f"logs\\log_{type}_{actual_date}"
+            self.logfile_path = f"logs\\log_{type}_{actual_date}.md"
             self.log_file = open(self.logfile_path, "w")
 
     def write_log_file(self, message_type: str, message: str):
