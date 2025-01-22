@@ -26,3 +26,11 @@ Se ha implementado una instancia de OpenGL la cual renderizá el motor de físic
 
   ### CARGAR CONFIGURACIONES
   Se pueden cargar configuraciones personalizadas en el simulador usando archivos tipo ***.json*** pulsando el botón ***Abrir Archivo***. Un ejemplo del formato que debe de seguirse se encuentra en la carpeta ***src/config_files***.
+
+## PRACTICA 2
+
+ ### GRÁFICA
+ Se ha implementado una gráfica la cual muestra la posición de las dos esferas en los ejes x (horizontal) y z (altura). Esto permite ver la trayectoria e interacciones físicas de las esferas de otra forma.
+
+ ### REGISTROS
+ Se ha añadido un sistema de registros donde se guardan las actividades y errores de la simulación y la interfaz para poder comprobar el correcto funcionamiento del sistema más fácilmente.
